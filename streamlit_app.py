@@ -68,7 +68,7 @@ def analyze_nda_text(nda_text):
 st.set_page_config(page_title="NDA Reviewer", page_icon="📄")
 
 st.title("📄 NDA Review Automation")
-st.write("Upload a Non-Disclosure Agreement (PDF) to automatically check it against our standard playbook. This tool is for informational purposes only and does not constitute legal advice.")
+st.write("Upload a Non-Disclosure Agreement (PDF) to automatically check it against our standard playbook.")
 
 uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
 
