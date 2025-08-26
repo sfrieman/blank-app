@@ -75,30 +75,3 @@ def analyze_nda_text(nda_text):
             with st.container(border=True):
                 st.markdown(f"**{row['Category']}**")
                 st.write(row['Recommendation'])
-
-# --- Main App Interface ---
-st.title("📄 NDA Review Automation")
-st.write("Upload a Non-Disclosure Agreement (PDF) to automatically check it against our standard playbook.")
-
-uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
-
-if uploaded_file is not None:
-    # To read file as bytes:
-    bytes_data = uploaded_file.getvalue()
-
-    with st.spinner(f"Analyzing '{uploaded_file.name}'... Please wait."):
-        # Extract text
-        nda_text = ""
-        with fitz.open(stream=bytes_data, filetype="pdf") as doc:
-            for page in doc:
-                nda_text += page.get_text("text") + "\n"
-        
-        # Analyze and create the sheet
-        results_df = analyze_nda_text(nda_text)
-        sheet_url = create_google_sheet(results_df, uploaded_file.name)
-
-    if sheet_url:
-        st.success("Analysis Complete!")
-        st.markdown(f"### [Click Here to View Your NDA Review]({sheet_url})")
-    else:
-        st.error("There was a problem generating the review. Please try again.")
