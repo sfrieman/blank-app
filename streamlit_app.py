@@ -62,32 +62,19 @@ def analyze_nda_text(nda_text):
         st.error(f"Error during analysis: {e}")
         return pd.DataFrame()
 
-# --- Paste your analyze_nda_text() function here (no changes needed) ---
-
-def create_google_sheet(df, pdf_name):
-    # This function is similar to the Cloud Function version
-    try:
-        # For Streamlit, you store secrets in their secrets manager
-        creds_dict = st.secrets["gcp_service_account"]
-        creds = Credentials.from_service_account_info(creds_dict, scopes=['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'])
-        gc = gspread.authorize(creds)
+ # --- NEW: Display Results Directly on the Page ---
+    st.subheader("Analysis Results")
+    
+    if results_df.empty:
+        st.success("✅ All Clear! No major issues were found based on the playbook.")
+    else:
+        st.warning(f"🔍 Found {len(results_df)} items that require your attention.")
         
-        sheet_name = f"NDA First Review: {pdf_name}"
-        sh = gc.create(sheet_name)
-        # IMPORTANT: Share the sheet so the user can see it
-        sh.share(None, perm_type='anyone', role='reader')
-        
-        worksheet = sh.sheet1
-        if df.empty:
-            worksheet.update([["Category", "Recommendation"], ["✅ No Issues Found", "This document appears to meet all standard requirements."]])
-        else:
-            worksheet.update([df.columns.values.tolist()] + df.values.tolist())
-        
-        # Apply formatting...
-        return sh.url
-    except Exception as e:
-        st.error(f"Error creating Google Sheet: {e}")
-        return None
+        # Loop through the DataFrame rows and display each piece of feedback
+        for index, row in results_df.iterrows():
+            with st.container(border=True):
+                st.markdown(f"**{row['Category']}**")
+                st.write(row['Recommendation'])
 
 # --- Main App Interface ---
 st.title("📄 NDA Review Automation")
